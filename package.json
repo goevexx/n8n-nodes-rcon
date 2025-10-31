@@ -40,9 +40,9 @@
 		"dev": "n8n-node dev",
 		"lint": "n8n-node lint",
 		"lint:fix": "n8n-node lint --fix",
-		"test": "jest",
+		"test": "jest --runInBand",
 		"test:watch": "jest --watch",
-		"test:coverage": "jest --coverage",
+		"test:coverage": "jest --coverage --runInBand",
 		"format": "prettier --write \"src/**/*.ts\" \"credentials/**/*.ts\" \"nodes/**/*.ts\" \"tests/**/*.ts\"",
 		"release": "n8n-node release",
 		"prepublishOnly": "n8n-node prerelease"
