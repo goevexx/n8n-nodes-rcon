@@ -37,7 +37,7 @@ describe('RconClient', () => {
     });
 
     // Cleanup after each test
-    afterEach((done) => {
+    afterEach(async () => {
         // Close all connected sockets first
         connectedSockets.forEach(socket => {
             if (!socket.destroyed) {
@@ -46,10 +46,18 @@ describe('RconClient', () => {
         });
         connectedSockets = [];
 
+        // Wait a moment for sockets to fully close
+        await new Promise(resolve => setTimeout(resolve, 50));
+
         // Then close the server
-        mockServer.close(() => {
-            done();
+        await new Promise<void>((resolve) => {
+            mockServer.close(() => {
+                resolve();
+            });
         });
+
+        // Wait before next test to ensure port is freed
+        await new Promise(resolve => setTimeout(resolve, 50));
     });
 
     describe('Constructor', () => {
