@@ -46,8 +46,8 @@ describe('RconClient', () => {
         });
         connectedSockets = [];
 
-        // Wait a moment for sockets to fully close
-        await new Promise(resolve => setTimeout(resolve, 50));
+        // Wait for sockets to fully close
+        await new Promise(resolve => setTimeout(resolve, 200));
 
         // Then close the server
         await new Promise<void>((resolve) => {
@@ -56,8 +56,8 @@ describe('RconClient', () => {
             });
         });
 
-        // Wait before next test to ensure port is freed
-        await new Promise(resolve => setTimeout(resolve, 50));
+        // Wait before next test to ensure port is fully freed
+        await new Promise(resolve => setTimeout(resolve, 200));
     });
 
     describe('Constructor', () => {
