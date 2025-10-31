@@ -6,8 +6,7 @@ import type {
 export class RconApi implements ICredentialType {
 	name = 'rconApi';
 	displayName = 'RCON API';
-	// documentationUrl: Set this to your GitHub README URL when publishing
-	// Example: documentationUrl = 'https://github.com/yourusername/n8n-nodes-rcon#configure-credentials';
+	documentationUrl = 'https://github.com/goevexx/n8n-nodes-rcon#quick-start';
 	properties: INodeProperties[] = [
 		{
 			displayName: 'Host',

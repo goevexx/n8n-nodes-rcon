@@ -54,7 +54,10 @@
 	],
 	"n8n": {
 		"n8nNodesApiVersion": 1,
-		"strict": true,
+		"strict": false,
+		"capabilities": [
+			"selfHostedOnly"
+		],
 		"credentials": [
 			"dist/credentials/RconApi.credentials.js"
 		],

@@ -14,6 +14,8 @@ import { createRconClient } from './helpers';
 import { RconError } from '../../src/types';
 
 export class Rcon implements INodeType {
+	usableAsTool = true;
+
 	description: INodeTypeDescription = {
 		displayName: 'RCON',
 		name: 'rcon',

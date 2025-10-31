@@ -9,6 +9,8 @@
 
 > A production-ready n8n community node for remote game server administration via RCON (Remote Console) protocol.
 
+> **⚠️ Self-Hosted Only**: This node requires TCP socket access and can only be used with self-hosted n8n instances. It will not work on n8n Cloud.
+
 Control and manage your game servers directly from n8n workflows - execute commands, retrieve status, automate server management, and integrate with other n8n nodes for powerful automation scenarios.
 
 [RCON Protocol](https://developer.valvesoftware.com/wiki/Source_RCON_Protocol) is a network protocol for remote server administration in Source Engine games and other compatible game servers.

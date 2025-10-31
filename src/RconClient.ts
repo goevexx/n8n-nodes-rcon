@@ -382,7 +382,7 @@ export class RconClient extends EventEmitter {
         }
 
         // Find pending response - check if this packet ID matches a command ID
-        let pending = this.pendingResponses.get(packet.id);
+        const pending = this.pendingResponses.get(packet.id);
 
         // If not found, check if this packet ID matches a terminator ID
         if (!pending) {
@@ -496,7 +496,7 @@ export class RconClient extends EventEmitter {
     /**
      * Log debug message
      */
-    private log(message: string, data?: any): void {
+    private log(message: string, data?: unknown): void {
         if (this.debug) {
             const timestamp = new Date().toISOString();
             console.log(`[${timestamp}] [RCON] ${message}`, data || '');
