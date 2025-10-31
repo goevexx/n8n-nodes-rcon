@@ -9,7 +9,9 @@
 
 > A production-ready n8n community node for remote game server administration via RCON (Remote Console) protocol.
 
-> **⚠️ Self-Hosted Only**: This node requires TCP socket access and can only be used with self-hosted n8n instances. It will not work on n8n Cloud.
+> **⚠️ Security Warning**: RCON transmits passwords in **plaintext over TCP**. Only use this node in secure network environments with VPN connections, SSH tunnels, or when n8n runs on the same machine as your game server. Never expose RCON ports directly to the internet.
+
+> **ℹ️ Self-Hosted Only**: This node requires TCP socket access and can only be used with self-hosted n8n instances. It will not work on n8n Cloud.
 
 Control and manage your game servers directly from n8n workflows - execute commands, retrieve status, automate server management, and integrate with other n8n nodes for powerful automation scenarios.
 
@@ -96,8 +98,6 @@ Before using the RCON node, you need to configure credentials:
    - **Password**: Your RCON password
    - **Connection Timeout**: Optional, defaults to 5000ms
 
-![RCON Credentials Configuration](docs/images/credentials-setup.png)
-
 ### 2. Send Your First Command
 
 1. Add the **RCON** node to your workflow
@@ -105,8 +105,6 @@ Before using the RCON node, you need to configure credentials:
 3. Choose operation: **Send Command**
 4. Enter a command (e.g., `list` for Minecraft)
 5. Execute the workflow
-
-![RCON Node Configuration](docs/images/node-configuration.png)
 
 ---
 
@@ -296,12 +294,16 @@ Any game server that implements the Source RCON Protocol:
 
 ### Critical Security Considerations
 
-#### 1. Unencrypted Connection
-The RCON protocol transmits passwords **in plaintext** over TCP. For production environments:
-- ✅ Use VPN connections to your game servers
-- ✅ Use SSH tunneling for remote connections
+#### 1. Unencrypted Connection (CRITICAL)
+The RCON protocol transmits passwords **in plaintext** over TCP. **This is the most important security consideration.**
+
+**Recommended secure configurations:**
+- ✅ **Best**: Run n8n on the same machine as your game server (localhost connection)
+- ✅ **Good**: Use VPN connections to your game servers
+- ✅ **Good**: Use SSH tunneling for remote connections (ssh -L port forwarding)
 - ✅ Keep RCON ports firewalled and only accessible from trusted IPs
-- ❌ Never expose RCON ports directly to the internet
+- ❌ **NEVER** expose RCON ports directly to the internet
+- ❌ **NEVER** use RCON over untrusted networks without encryption
 
 #### 2. IP Ban Risk
 After multiple failed authentication attempts, the server will ban your IP address:
@@ -397,8 +399,6 @@ n8n-nodes-rcon/
 ├── src/
 │   └── index.ts                 # Package exports
 ├── dist/                        # Compiled JavaScript (generated)
-├── docs/
-│   └── images/                  # Documentation screenshots
 └── README.md
 ```
 
