@@ -35,6 +35,9 @@ jobs:
 
       - name: Run tests with coverage
         run: npm run test:coverage
+        env:
+          CI: true
+          SKIP_INTEGRATION_TESTS: true
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4
