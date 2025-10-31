@@ -12,10 +12,14 @@ describe('RconClient', () => {
     let serverPort: number;
     let connectedSockets: net.Socket[] = [];
     const testPassword = 'test_password';
+    // Use a base port and increment for each test to avoid conflicts
+    let currentPort = 45000;
 
     // Setup mock RCON server before each test
     beforeEach((done) => {
         connectedSockets = [];
+        const portToUse = currentPort++;
+
         mockServer = net.createServer((socket) => {
             connectedSockets.push(socket);
             socket.on('data', (data: Buffer) => {
@@ -29,7 +33,7 @@ describe('RconClient', () => {
             });
         });
 
-        mockServer.listen(0, 'localhost', () => {
+        mockServer.listen(portToUse, 'localhost', () => {
             const address = mockServer.address() as net.AddressInfo;
             serverPort = address.port;
             done();
