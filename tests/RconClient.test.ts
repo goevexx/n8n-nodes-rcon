@@ -36,7 +36,8 @@ describe('RconClient', () => {
         mockServer.listen(portToUse, 'localhost', () => {
             const address = mockServer.address() as net.AddressInfo;
             serverPort = address.port;
-            done();
+            // Small delay to ensure server is fully ready in CI
+            setTimeout(done, 100);
         });
     });
 
