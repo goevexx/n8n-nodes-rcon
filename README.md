@@ -82,6 +82,8 @@ After installation, look for the **RCON** node in the nodes panel under the "Tra
 
 ## Quick Start
 
+> **Test Note**: Verifying Claude Code Review workflow is functioning correctly.
+
 ### 1. Set Up Credentials
 
 Before using the RCON node, you need to configure credentials:
