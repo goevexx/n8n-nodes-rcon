@@ -38,6 +38,15 @@ describe('RconClient', () => {
 
     // Cleanup after each test
     afterEach((done) => {
+        // Close all connected sockets first
+        connectedSockets.forEach(socket => {
+            if (!socket.destroyed) {
+                socket.destroy();
+            }
+        });
+        connectedSockets = [];
+
+        // Then close the server
         mockServer.close(() => {
             done();
         });
