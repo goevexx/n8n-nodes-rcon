@@ -32,7 +32,7 @@
 		"url": "https://github.com/goevexx/n8n-nodes-rcon/issues"
 	},
 	"engines": {
-		"node": ">=14.0.0"
+		"node": ">=20.0.0"
 	},
 	"scripts": {
 		"build": "n8n-node build",
