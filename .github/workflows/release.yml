@@ -1,0 +1,102 @@
+name: Release
+
+# This workflow generates release PRs from conventional commits
+# Workflow relationship:
+#   1. release.yml (this) -> Creates PR with version bump & CHANGELOG
+#   2. After PR merge -> auto-tag-release.yml creates tag automatically
+#   3. Tag push triggers publish.yml -> Publishes to npm + GitHub Release
+#
+# Trigger strategy: Manual only
+# Run this workflow manually from Actions tab when ready to release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: Conventional Changelog Action
+        id: changelog
+        uses: TriPSs/conventional-changelog-action@v5
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          release-count: 0
+          version-file: './package.json'
+          skip-version-file: false
+          skip-commit: false
+          skip-ci: false
+          skip-tag: true # Don't create tag yet
+          git-push: false # Don't push directly
+          git-message: 'chore(release): {version}'
+          preset: 'conventionalcommits'
+          tag-prefix: 'v'
+          output-file: 'CHANGELOG.md'
+          skip-on-empty: true
+          skip-git-pull: false
+
+      - name: Create Release PR
+        if: ${{ steps.changelog.outputs.skipped == 'false' }}
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.PAT_TOKEN }}
+          commit-message: 'chore(release): v${{ steps.changelog.outputs.version }}'
+          branch: release/v${{ steps.changelog.outputs.version }}
+          delete-branch: true
+          title: 'chore(release): v${{ steps.changelog.outputs.version }}'
+          body: |
+            ## Release v${{ steps.changelog.outputs.version }}
+
+            Automated release PR generated from conventional commits.
+
+            ### Changelog
+            ${{ steps.changelog.outputs.clean_changelog }}
+
+            ### Automated Workflow
+            This release PR will trigger the following automatically:
+
+            **On PR Creation:**
+            - ✅ Tests run automatically (using PAT_TOKEN)
+            - ✅ Coverage reports uploaded to Codecov
+            - ✅ All CI checks must pass before merge
+
+            **After Merge:**
+            - ✅ Tag `v${{ steps.changelog.outputs.version }}` created automatically
+            - ✅ npm publish triggered via `publish.yml`
+            - ✅ GitHub release created with changelog
+
+            No manual intervention required!
+
+            ---
+
+            📦 **Version**: ${{ steps.changelog.outputs.version }}
+            📝 **Changelog**: Updated
+            🏷️ **Tag**: Will be created after merge
+          labels: |
+            release
+            automated
+
+      - name: PR Creation Summary
+        if: ${{ steps.changelog.outputs.skipped == 'false' }}
+        run: |
+          echo "✅ Release PR created for v${{ steps.changelog.outputs.version }}"
+          echo "📋 Review and merge the PR, tag will be created automatically"
+
+      - name: No Release Needed
+        if: ${{ steps.changelog.outputs.skipped == 'true' }}
+        run: |
+          echo "ℹ️ No changes detected - release skipped"

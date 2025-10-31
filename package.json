@@ -1,0 +1,79 @@
+{
+	"name": "n8n-nodes-rcon",
+	"version": "0.1.0",
+	"description": "n8n community node for RCON (Remote Console) game server administration via Source RCON Protocol",
+	"license": "MIT",
+	"homepage": "https://github.com/goevexx/n8n-nodes-rcon#readme",
+	"keywords": [
+		"n8n-community-node-package",
+		"rcon",
+		"source",
+		"valve",
+		"minecraft",
+		"game-server",
+		"remote-console",
+		"cs-go",
+		"cs2",
+		"rust",
+		"ark",
+		"n8n",
+		"workflow",
+		"automation"
+	],
+	"author": {
+		"name": "Nicolas Morawietz",
+		"email": "nicolas@morawietz.dev"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/goevexx/n8n-nodes-rcon.git"
+	},
+	"bugs": {
+		"url": "https://github.com/goevexx/n8n-nodes-rcon/issues"
+	},
+	"engines": {
+		"node": ">=14.0.0"
+	},
+	"scripts": {
+		"build": "n8n-node build",
+		"build:watch": "tsc --watch",
+		"dev": "n8n-node dev",
+		"lint": "n8n-node lint",
+		"lint:fix": "n8n-node lint --fix",
+		"test": "jest",
+		"test:watch": "jest --watch",
+		"test:coverage": "jest --coverage",
+		"format": "prettier --write \"src/**/*.ts\" \"credentials/**/*.ts\" \"nodes/**/*.ts\" \"tests/**/*.ts\"",
+		"release": "n8n-node release",
+		"prepublishOnly": "n8n-node prerelease"
+	},
+	"files": [
+		"dist",
+		"README.md",
+		"LICENSE"
+	],
+	"n8n": {
+		"n8nNodesApiVersion": 1,
+		"strict": true,
+		"credentials": [
+			"dist/credentials/RconApi.credentials.js"
+		],
+		"nodes": [
+			"dist/nodes/Rcon/Rcon.node.js"
+		]
+	},
+	"devDependencies": {
+		"@n8n/node-cli": "*",
+		"@types/jest": "^29.5.0",
+		"@types/node": "^20.0.0",
+		"jest": "^29.5.0",
+		"prettier": "3.6.2",
+		"release-it": "^19.0.4",
+		"ts-jest": "^29.1.0",
+		"ts-node": "^10.9.0",
+		"typescript": "5.9.2"
+	},
+	"peerDependencies": {
+		"n8n-workflow": "*"
+	}
+}

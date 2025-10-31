@@ -1,0 +1,74 @@
+version: '3.8'
+
+# Simple n8n + Minecraft server for quick RCON testing
+# For full dev environment with Pterodactyl, use docker-compose.dev.yml
+
+services:
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n-rcon-test
+    user: root  # Run as root to avoid permission issues
+    ports:
+      - '9001:5678'
+    environment:
+      - N8N_CUSTOM_EXTENSIONS=/data/custom
+      - N8N_LOG_LEVEL=debug
+      - N8N_LOG_OUTPUT=console
+      - GENERIC_TIMEZONE=UTC
+      - TZ=UTC
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=false
+    volumes:
+      # Mount the complete built package (no :ro restriction)
+      - ./.build-package:/data/custom/n8n-nodes-rcon
+      # Persistent data
+      - n8n_data:/home/node/.n8n
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'wget', '--spider', '-q', 'http://localhost:5678/healthz']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - rcon-test
+
+  minecraft:
+    image: itzg/minecraft-server:java17
+    container_name: minecraft-rcon-test
+    environment:
+      - EULA=TRUE
+      - TYPE=PAPER
+      - VERSION=1.20.1
+      - MEMORY=2G
+      - ENABLE_RCON=true
+      - RCON_PASSWORD=minecraft_rcon_password
+      - RCON_PORT=25575
+      - SERVER_PORT=25565
+      - ONLINE_MODE=false
+      - DIFFICULTY=peaceful
+      - MAX_PLAYERS=10
+      - MOTD=RCON Test Server
+    ports:
+      - "25565:25565"  # Minecraft
+      - "25575:25575"  # RCON
+    volumes:
+      - minecraft_data:/data
+    restart: unless-stopped
+    networks:
+      - rcon-test
+    healthcheck:
+      test: ["CMD", "mc-monitor", "status", "--host", "localhost", "--port", "25565"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+
+volumes:
+  n8n_data:
+    driver: local
+  minecraft_data:
+    driver: local
+
+networks:
+  rcon-test:
+    driver: bridge
