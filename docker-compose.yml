@@ -11,7 +11,6 @@ services:
     ports:
       - '9001:5678'
     environment:
-      - N8N_CUSTOM_EXTENSIONS=/data/custom
       - N8N_LOG_LEVEL=debug
       - N8N_LOG_OUTPUT=console
       - GENERIC_TIMEZONE=UTC
@@ -19,8 +18,8 @@ services:
       - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=false
       - N8N_SECURE_COOKIE=false
     volumes:
-      # Mount the complete built package (no :ro restriction)
-      - ./.build-package:/data/custom/n8n-nodes-rcon
+      # Mount built package directly to node_modules like a real community node
+      - ./.build-package:/root/.n8n/nodes/node_modules/n8n-nodes-rcon:ro
       # Persistent data - use /root/.n8n since running as root user
       - n8n_data:/root/.n8n
     restart: unless-stopped
