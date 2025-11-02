@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-rcon",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "n8n community node for RCON (Remote Console) game server administration via Source RCON Protocol",
   "license": "MIT",
   "homepage": "https://github.com/goevexx/n8n-nodes-rcon#readme",
