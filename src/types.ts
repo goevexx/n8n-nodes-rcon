@@ -47,6 +47,16 @@ export interface RconPacket {
 }
 
 /**
+ * RCON Protocol Types
+ */
+export enum RconProtocol {
+    /** Source RCON Protocol (TCP) - Used by Minecraft, CS:GO, ARK, etc. */
+    SOURCE = 'source',
+    /** BattlEye RCON Protocol (UDP) - Used by DayZ, ARMA 2/3 */
+    BATTLEYE = 'battleye',
+}
+
+/**
  * RCON client configuration options
  */
 export interface RconOptions {
@@ -56,6 +66,8 @@ export interface RconOptions {
     port?: number;
     /** RCON password */
     password: string;
+    /** RCON Protocol type (default: 'source') */
+    protocol?: RconProtocol | string;
     /** Connection timeout in ms (default: 5000) */
     timeout?: number;
     /** Read/Write timeout in ms (default: 5000) */

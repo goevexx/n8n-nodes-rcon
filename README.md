@@ -46,15 +46,16 @@ Control and manage your game servers directly from n8n workflows - execute comma
 
 ## Features
 
-- ✅ **Full RCON Protocol Support** - 100% compliant with Source RCON specification
-- 🎮 **Wide Game Support** - Minecraft, Source games (CS:GO, CS2, TF2), Rust, ARK, and more
+- ✅ **Multiple Protocol Support** - Source RCON (TCP) and BattlEye RCON (UDP)
+- 🎮 **Wide Game Support** - Minecraft, Source games (CS:GO, CS2, TF2), Rust, ARK, DayZ, ARMA 2/3, and more
 - 🔒 **Secure Authentication** - Password-based authentication with proper error handling
-- 📦 **Multi-Packet Responses** - Correctly handles responses larger than 4KB
+- 📦 **Multi-Packet Responses** - Correctly handles responses larger than 4KB (Source RCON)
 - ⚡ **Async Operation** - Non-blocking command execution
 - 🛡️ **Type-Safe** - Built with TypeScript for reliability
 - ⏱️ **Configurable Timeouts** - Customize connection and I/O timeouts
 - 🎪 **Error Handling** - Comprehensive error types with `continueOnFail` support
 - 🔄 **Workflow Integration** - Seamlessly integrate server management into n8n workflows
+- 🎯 **BattlEye Support** - Full UDP-based protocol with CRC32 validation and heartbeat
 
 ---
 
@@ -93,8 +94,9 @@ Before using the RCON node, you need to configure credentials:
 3. Click on **Credential to connect with**
 4. Click **Create New**
 5. Fill in the connection details:
+   - **Protocol**: Select protocol type (Source RCON for most games, BattlEye RCON for DayZ/ARMA)
    - **Host**: Your server's IP address or hostname (e.g., `192.168.1.100` or `game.example.com`)
-   - **Port**: RCON port (default: `25575` for Minecraft, `27015` for Source games)
+   - **Port**: RCON port (Source: `25575` for Minecraft, `27015` for Source games; BattlEye: typically game port like `2305` for DayZ)
    - **Password**: Your RCON password
    - **Connection Timeout**: Optional, defaults to 5000ms
 
@@ -180,30 +182,58 @@ Schedule Trigger (every hour)
 
 ## Supported Games & Servers
 
-### Minecraft (Java & Bedrock)
+### Source RCON Protocol (TCP)
+
+#### Minecraft (Java & Bedrock)
+- **Protocol**: Source RCON
 - **Default Port**: 25575
 - **Example Commands**: `list`, `say <message>`, `give <player> <item>`, `weather clear`, `time set day`
 
-### Source Engine Games
+#### Source Engine Games
+- **Protocol**: Source RCON
 - **Default Port**: 27015
 - **Supported**: CS:GO, Counter-Strike 2, Team Fortress 2, Garry's Mod, Left 4 Dead 2
 - **Example Commands**: `status`, `changelevel <map>`, `kick <player>`, `sv_cheats <0|1>`
 
-### Rust
+#### Rust
+- **Protocol**: Source RCON
 - **Default Port**: 28016
 - **Example Commands**: `save`, `quit`, `global.ban <player>`, `weather.rain 0`
 
-### ARK: Survival Evolved
+#### ARK: Survival Evolved
+- **Protocol**: Source RCON
 - **Default Port**: 27020
 - **Example Commands**: `SaveWorld`, `DestroyWildDinos`, `Broadcast <message>`
 
-### Other Compatible Games
-Any game server that implements the Source RCON Protocol:
+#### Other Source RCON Compatible Games
 - Eco
 - Conan Exiles
 - 7 Days to Die
 - Satisfactory
+- Space Engineers
 - Valheim (with mods)
+
+### BattlEye RCON Protocol (UDP)
+
+#### DayZ
+- **Protocol**: BattlEye RCON
+- **Default Port**: 2305 (or game port)
+- **Example Commands**: `players`, `kick <player>`, `say -1 <message>`, `loadScripts`, `#shutdown`
+
+#### ARMA 2
+- **Protocol**: BattlEye RCON
+- **Default Port**: 2302 (or game port)
+- **Example Commands**: `players`, `kick <player>`, `admins`, `missions`
+
+#### ARMA 3
+- **Protocol**: BattlEye RCON
+- **Default Port**: 2302 (or game port)
+- **Example Commands**: `players`, `kick <player>`, `say -1 <message>`, `loadScripts`
+
+#### Arma Reforger
+- **Protocol**: BattlEye RCON
+- **Default Port**: 2001 (or game port)
+- **Example Commands**: `players`, `kick <player>`, `say -1 <message>`
 
 ---
 
@@ -382,6 +412,36 @@ npm test
 npm run lint
 npm run format
 ```
+
+### Local Testing with Docker
+
+The repository includes Docker Compose configurations for local testing with real game servers:
+
+```bash
+# Start test environment (n8n + game servers)
+docker-compose up -d
+
+# Access n8n at http://localhost:9001
+```
+
+**Available Test Servers:**
+
+1. **Source RCON (TCP)** - Minecraft Server
+   - Host: `minecraft-rcon-test`
+   - Port: `25575`
+   - Password: `minecraft_rcon_password`
+   - Protocol: Source RCON (TCP)
+
+2. **BattlEye RCON (UDP)** - Authentic Protocol Implementation
+   - Host: `battleye-rcon-test`
+   - Port: `2305`
+   - Password: `dayz_rcon_password`
+   - Protocol: BattlEye RCON (UDP)
+   - Implements the complete BattlEye RCON protocol with CRC32 validation, sequence numbers, and heartbeat
+   - Compatible with DayZ, ARMA 2, ARMA 3, Arma Reforger protocol specs
+   - Responds to standard commands like `players`, empty heartbeat commands
+
+Both test servers implement authentic protocol specifications and can be used to verify RCON functionality without needing external game servers.
 
 ### Project Structure
 

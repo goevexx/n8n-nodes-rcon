@@ -11,4 +11,7 @@ module.exports = {
   coverageReporters: ['text', 'lcov', 'html'],
   verbose: true,
   testTimeout: 10000,
+  // Force Jest to exit after tests complete
+  // This prevents hanging when async operations (timers, sockets) remain open
+  forceExit: true,
 };

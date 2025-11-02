@@ -52,3 +52,6 @@ package/
 PRDs/
 PRPs/
 .icon-backups/
+
+# DayZ server configuration (may contain passwords)
+dayz-config/beserver_x64.cfg

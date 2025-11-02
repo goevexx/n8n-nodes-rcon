@@ -11,17 +11,17 @@ services:
     ports:
       - '9001:5678'
     environment:
-      - N8N_CUSTOM_EXTENSIONS=/data/custom
       - N8N_LOG_LEVEL=debug
       - N8N_LOG_OUTPUT=console
       - GENERIC_TIMEZONE=UTC
       - TZ=UTC
       - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=false
+      - N8N_SECURE_COOKIE=false
     volumes:
-      # Mount the complete built package (no :ro restriction)
-      - ./.build-package:/data/custom/n8n-nodes-rcon
-      # Persistent data
-      - n8n_data:/home/node/.n8n
+      # Mount built package directly to node_modules like a real community node
+      - ./.build-package:/root/.n8n/nodes/node_modules/n8n-nodes-rcon:ro
+      # Persistent data - use /root/.n8n since running as root user
+      - n8n_data:/root/.n8n
     restart: unless-stopped
     healthcheck:
       test: ['CMD', 'wget', '--spider', '-q', 'http://localhost:5678/healthz']
@@ -62,6 +62,65 @@ services:
       timeout: 10s
       retries: 3
       start_period: 120s
+
+  battleye-rcon:
+    image: node:20-alpine
+    container_name: battleye-rcon-test
+    command: node /app/battleye-mock-server.js
+    volumes:
+      - ./.dev/battleye-mock-server.js:/app/battleye-mock-server.js:ro
+    ports:
+      - "2305:2305/udp"  # BattlEye RCON (UDP)
+    restart: unless-stopped
+    networks:
+      - rcon-test
+    # Implements authentic BattlEye RCON Protocol (RFC-compliant)
+    # Protocol: CRC32 validation, sequence numbers, Login/Command/ServerMessage packets
+    # Compatible with: DayZ, ARMA 2, ARMA 3, Arma Reforger
+    # Test credentials: host=battleye-rcon-test, port=2305, password=dayz_rcon_password
+
+  # ========================================================================
+  # OPTIONAL: Real DayZ Server with BattlEye RCON
+  # ========================================================================
+  # Uncomment to run a real DayZ server instead of the mock server above
+  # Requirements:
+  #   - Steam account with DayZ ownership (~$45)
+  #   - 10-20 GB disk space for server files
+  #   - 4+ GB RAM recommended
+  #   - Manual BattlEye RCON configuration required
+  #
+  # dayz-server:
+  #   image: ghcr.io/mr-guard/dayz-server-manager:latest
+  #   container_name: dayz-rcon-real
+  #   ports:
+  #     - "2302:2302/udp"    # DayZ Game Port
+  #     - "2303:2303/udp"    # Steam Query Port
+  #     - "2305:2305/udp"    # BattlEye RCON Port
+  #   volumes:
+  #     - dayz_data:/dayz/server
+  #     # Mount BattlEye config with RCON settings
+  #     - ./dayz-config/beserver_x64.cfg:/dayz/server/battleye/beserver_x64.cfg
+  #   environment:
+  #     - STEAM_CMD_USER=anonymous
+  #     - APP_ID=1042420  # DayZ Experimental
+  #   restart: unless-stopped
+  #   networks:
+  #     - rcon-test
+  #
+  # Setup Instructions:
+  # 1. Create dayz-config/beserver_x64.cfg with:
+  #    RConPassword your_secure_password
+  #    RConPort 2305
+  #    RestrictRCon 0
+  # 2. Uncomment the dayz-server service above
+  # 3. Add dayz_data volume below
+  # 4. Run: docker-compose up -d dayz-server
+  # 5. Wait 10-15 minutes for initial download and setup
+  # 6. Test connection with:
+  #    - Host: dayz-rcon-real
+  #    - Port: 2305
+  #    - Password: your_secure_password
+  #    - Protocol: BattlEye RCON (UDP)
 
 volumes:
   n8n_data:
