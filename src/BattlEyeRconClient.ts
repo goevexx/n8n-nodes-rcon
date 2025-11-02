@@ -276,8 +276,13 @@ export class BattlEyeRconClient extends EventEmitter {
 			);
 		}
 
-		// Calculate CRC32 checksum
-		const crc32 = this.calculateCRC32(payload);
+		// Calculate CRC32 checksum over [0xFF, ...payload]
+		// The BattlEye protocol requires the separator byte to be included in CRC calculation
+		const dataToChecksum = Buffer.concat([
+			Buffer.from([0xFF]),
+			payload
+		]);
+		const crc32 = this.calculateCRC32(dataToChecksum);
 
 		// Build packet: 'B' | 'E' | CRC32 (4 bytes) | 0xFF | payload
 		const packet = Buffer.alloc(7 + payload.length);
@@ -325,8 +330,9 @@ export class BattlEyeRconClient extends EventEmitter {
 
 		const payload = msg.subarray(7);
 
-		// Verify CRC32
-		const calculatedCRC32 = this.calculateCRC32(payload);
+		// Verify CRC32 - must include the 0xFF separator byte
+		const dataToVerify = msg.subarray(6); // [0xFF, ...payload]
+		const calculatedCRC32 = this.calculateCRC32(dataToVerify);
 		if (receivedCRC32 !== calculatedCRC32) {
 			this.log(`Invalid packet: CRC32 mismatch (received: ${receivedCRC32}, calculated: ${calculatedCRC32})`);
 			return;

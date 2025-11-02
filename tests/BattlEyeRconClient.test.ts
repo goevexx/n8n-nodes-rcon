@@ -68,6 +68,34 @@ describe('BattlEyeRconClient', () => {
 			const crc = calculateCRC32(emptyBuffer);
 			expect(typeof crc).toBe('number');
 		});
+
+		it('should include 0xFF separator byte in CRC calculation', () => {
+			// This test verifies the critical bug fix
+			const calculateCRC32 = (client as any).calculateCRC32.bind(client);
+			const password = 'SternchenGalaxy';
+
+			// Without 0xFF (wrong)
+			const payloadOnly = Buffer.concat([
+				Buffer.from([0x00]), // Login packet type
+				Buffer.from(password, 'utf8')
+			]);
+			const crcWrong = calculateCRC32(payloadOnly);
+
+			// With 0xFF (correct - as per BattlEye protocol)
+			const withSeparator = Buffer.concat([
+				Buffer.from([0xFF]), // Separator byte MUST be included
+				Buffer.from([0x00]), // Login packet type
+				Buffer.from(password, 'utf8')
+			]);
+			const crcCorrect = calculateCRC32(withSeparator);
+
+			// They MUST be different
+			expect(crcWrong).not.toBe(crcCorrect);
+
+			// Verify against known correct value
+			expect(crcCorrect).toBe(0xba410cb5);
+			expect(crcWrong).toBe(0x87af8013);
+		});
 	});
 
 	describe('Packet Building', () => {
@@ -161,9 +189,9 @@ describe('BattlEyeRconClient', () => {
 					response.writeUInt8(0x00, 7); // Login response type
 					response.writeUInt8(0x01, 8); // Success
 
-					// Calculate correct CRC32
-					const payload = response.subarray(7);
-					const crc32 = (client as any).calculateCRC32(payload);
+					// Calculate correct CRC32 - must include 0xFF separator byte
+					const dataToChecksum = response.subarray(6); // [0xFF, ...payload]
+					const crc32 = (client as any).calculateCRC32(dataToChecksum);
 					response.writeUInt32LE(crc32, 2);
 
 					messageHandler(response);
