@@ -413,6 +413,36 @@ npm run lint
 npm run format
 ```
 
+### Local Testing with Docker
+
+The repository includes Docker Compose configurations for local testing with real game servers:
+
+```bash
+# Start test environment (n8n + game servers)
+docker-compose up -d
+
+# Access n8n at http://localhost:9001
+```
+
+**Available Test Servers:**
+
+1. **Source RCON (TCP)** - Minecraft Server
+   - Host: `minecraft-rcon-test`
+   - Port: `25575`
+   - Password: `minecraft_rcon_password`
+   - Protocol: Source RCON (TCP)
+
+2. **BattlEye RCON (UDP)** - Authentic Protocol Implementation
+   - Host: `battleye-rcon-test`
+   - Port: `2305`
+   - Password: `dayz_rcon_password`
+   - Protocol: BattlEye RCON (UDP)
+   - Implements the complete BattlEye RCON protocol with CRC32 validation, sequence numbers, and heartbeat
+   - Compatible with DayZ, ARMA 2, ARMA 3, Arma Reforger protocol specs
+   - Responds to standard commands like `players`, empty heartbeat commands
+
+Both test servers implement authentic protocol specifications and can be used to verify RCON functionality without needing external game servers.
+
 ### Project Structure
 
 ```

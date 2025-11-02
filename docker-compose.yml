@@ -63,6 +63,65 @@ services:
       retries: 3
       start_period: 120s
 
+  battleye-rcon:
+    image: node:20-alpine
+    container_name: battleye-rcon-test
+    command: node /app/battleye-mock-server.js
+    volumes:
+      - ./.dev/battleye-mock-server.js:/app/battleye-mock-server.js:ro
+    ports:
+      - "2305:2305/udp"  # BattlEye RCON (UDP)
+    restart: unless-stopped
+    networks:
+      - rcon-test
+    # Implements authentic BattlEye RCON Protocol (RFC-compliant)
+    # Protocol: CRC32 validation, sequence numbers, Login/Command/ServerMessage packets
+    # Compatible with: DayZ, ARMA 2, ARMA 3, Arma Reforger
+    # Test credentials: host=battleye-rcon-test, port=2305, password=dayz_rcon_password
+
+  # ========================================================================
+  # OPTIONAL: Real DayZ Server with BattlEye RCON
+  # ========================================================================
+  # Uncomment to run a real DayZ server instead of the mock server above
+  # Requirements:
+  #   - Steam account with DayZ ownership (~$45)
+  #   - 10-20 GB disk space for server files
+  #   - 4+ GB RAM recommended
+  #   - Manual BattlEye RCON configuration required
+  #
+  # dayz-server:
+  #   image: ghcr.io/mr-guard/dayz-server-manager:latest
+  #   container_name: dayz-rcon-real
+  #   ports:
+  #     - "2302:2302/udp"    # DayZ Game Port
+  #     - "2303:2303/udp"    # Steam Query Port
+  #     - "2305:2305/udp"    # BattlEye RCON Port
+  #   volumes:
+  #     - dayz_data:/dayz/server
+  #     # Mount BattlEye config with RCON settings
+  #     - ./dayz-config/beserver_x64.cfg:/dayz/server/battleye/beserver_x64.cfg
+  #   environment:
+  #     - STEAM_CMD_USER=anonymous
+  #     - APP_ID=1042420  # DayZ Experimental
+  #   restart: unless-stopped
+  #   networks:
+  #     - rcon-test
+  #
+  # Setup Instructions:
+  # 1. Create dayz-config/beserver_x64.cfg with:
+  #    RConPassword your_secure_password
+  #    RConPort 2305
+  #    RestrictRCon 0
+  # 2. Uncomment the dayz-server service above
+  # 3. Add dayz_data volume below
+  # 4. Run: docker-compose up -d dayz-server
+  # 5. Wait 10-15 minutes for initial download and setup
+  # 6. Test connection with:
+  #    - Host: dayz-rcon-real
+  #    - Port: 2305
+  #    - Password: your_secure_password
+  #    - Protocol: BattlEye RCON (UDP)
+
 volumes:
   n8n_data:
     driver: local
