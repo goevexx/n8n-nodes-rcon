@@ -17,6 +17,7 @@ services:
       - GENERIC_TIMEZONE=UTC
       - TZ=UTC
       - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=false
+      - N8N_SECURE_COOKIE=false
     volumes:
       # Mount the complete built package (no :ro restriction)
       - ./.build-package:/data/custom/n8n-nodes-rcon

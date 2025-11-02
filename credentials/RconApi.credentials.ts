@@ -1,4 +1,5 @@
 import type {
+	ICredentialTestRequest,
 	ICredentialType,
 	INodeProperties,
 } from 'n8n-workflow';
@@ -64,6 +65,11 @@ export class RconApi implements ICredentialType {
 		},
 	];
 
-	// Credential testing is handled by 'rconConnectionTest' method in Rcon.node.ts
-	// Referenced via testedBy property in the node's credentials array
+	// Enable credential testing via the node's credentialTest method
+	test: ICredentialTestRequest = {
+		request: {
+			baseURL: '=',
+			url: '',
+		},
+	};
 }

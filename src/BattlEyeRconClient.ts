@@ -289,11 +289,12 @@ export class BattlEyeRconClient extends EventEmitter {
 		this.socket.send(packet, this.port, this.host, (error) => {
 			if (error) {
 				this.log(`Failed to send packet: ${error.message}`);
-				throw new RconError(
+				// Emit error event instead of throwing (callback context)
+				this.emit('error', new RconError(
 					RconErrorType.SOCKET_ERROR,
 					`Failed to send packet: ${error.message}`,
 					error
-				);
+				));
 			}
 		});
 	}
@@ -446,7 +447,19 @@ export class BattlEyeRconClient extends EventEmitter {
 			if (this.isAuthenticated()) {
 				this.log('Sending heartbeat');
 				const seqNum = this.getNextSequenceNumber();
-				this.sendCommandPacket(seqNum, ''); // Empty command as heartbeat
+				// Send heartbeat directly without waiting for response to avoid memory leaks
+				// Heartbeats are fire-and-forget to prevent pendingCommands buildup
+				const payload = Buffer.concat([
+					Buffer.from([0x01]), // Command packet type
+					Buffer.from([seqNum]),
+					Buffer.from('', 'utf8') // Empty command
+				]);
+				try {
+					this.sendPacket(payload);
+				} catch (error) {
+					this.log(`Heartbeat send failed: ${error}`);
+					// Don't throw - heartbeat failures shouldn't crash the connection
+				}
 			}
 		}, 45000); // 45 seconds
 	}
