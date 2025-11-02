@@ -123,7 +123,7 @@ export class RconClient extends EventEmitter {
 
         const commandId = this.getNextRequestId();
         const terminatorId = this.getNextRequestId();
-        console.log(`[RCON Debug] Sending command ID=${commandId}, terminator ID=${terminatorId}`);
+        this.log(`Sending command ID=${commandId}, terminator ID=${terminatorId}`);
 
         try {
             // Send command
@@ -365,8 +365,7 @@ export class RconClient extends EventEmitter {
      */
     private handlePacket(packet: RconPacket): void {
         this.log(`Received packet: ID=${packet.id}, Type=${packet.type}, Size=${packet.size}, Body="${packet.body.substring(0, 50)}${packet.body.length > 50 ? '...' : ''}"`);
-        console.log(`[RCON Debug] Received packet: ID=${packet.id}, Type=${packet.type}, Body="${packet.body}"`);
-        console.log(`[RCON Debug] Pending responses:`, Array.from(this.pendingResponses.keys()));
+        this.log(`Pending responses: ${Array.from(this.pendingResponses.keys()).join(', ')}`);
 
         // Check for auth failure
         if (packet.id === RCON_CONSTANTS.AUTH_FAILURE_ID) {
@@ -389,7 +388,7 @@ export class RconClient extends EventEmitter {
             for (const [commandId, p] of this.pendingResponses.entries()) {
                 if (p.terminatorId && packet.id === p.terminatorId) {
                     // This is the terminator response
-                    console.log(`[RCON Debug] Matched terminator packet ID=${packet.id} to command ID=${commandId}`);
+                    this.log(`Matched terminator packet ID=${packet.id} to command ID=${commandId}`);
                     this.pendingResponses.delete(commandId);
                     p.resolve(p.responses);
                     return;
