@@ -21,8 +21,8 @@ services:
     volumes:
       # Mount the complete built package (no :ro restriction)
       - ./.build-package:/data/custom/n8n-nodes-rcon
-      # Persistent data
-      - n8n_data:/home/node/.n8n
+      # Persistent data - use /root/.n8n since running as root user
+      - n8n_data:/root/.n8n
     restart: unless-stopped
     healthcheck:
       test: ['CMD', 'wget', '--spider', '-q', 'http://localhost:5678/healthz']
